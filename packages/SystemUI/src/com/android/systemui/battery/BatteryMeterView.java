@@ -299,33 +299,23 @@ public class BatteryMeterView extends LinearLayout implements DarkReceiver {
             }
         }
 
-        updateContentDescription();
-    }
-
-    private void updateContentDescription() {
-        Context context = getContext();
-
-        String contentDescription;
-        if (mBatteryStateUnknown) {
-            contentDescription = context.getString(R.string.accessibility_battery_unknown);
-        } else if (mShowPercentMode == MODE_ESTIMATE && !TextUtils.isEmpty(mEstimateText)) {
-            contentDescription = context.getString(
-                    mIsOverheated
-                            ? R.string.accessibility_battery_level_charging_paused_with_estimate
-                            : R.string.accessibility_battery_level_with_estimate,
-                    mLevel,
-                    mEstimateText);
-        } else if (mIsOverheated) {
-            contentDescription =
-                    context.getString(R.string.accessibility_battery_level_charging_paused, mLevel);
-        } else if (mCharging) {
-            contentDescription =
-                    context.getString(R.string.accessibility_battery_level_charging, mLevel);
-        } else {
-            contentDescription = context.getString(R.string.accessibility_battery_level, mLevel);
+        String percentText = NumberFormat.getPercentInstance().format(mLevel / 100f);
+        // Setting text actually triggers a layout pass (because the text view is set to
+        // wrap_content width and TextView always relayouts for this). Avoid needless
+        // relayout if the text didn't actually change.
+        if (TextUtils.equals(mBatteryPercentView.getText(), percentText)) {
+            return;
         }
 
-        setContentDescription(contentDescription);
+        // Use the high voltage symbol ⚡ (u26A1 unicode) but prevent the system
+        // to load its emoji colored variant with the uFE0E flag
+        // only use it when there is no batt icon showing
+        String indication = mCharging && (mBatteryStyle == BATTERY_STYLE_TEXT)
+                ? "\u26A1\uFE0E " : "";
+        mBatteryPercentView.setText(indication + percentText);
+        setContentDescription(
+                getContext().getString(mCharging ? R.string.accessibility_battery_level_charging
+                        : R.string.accessibility_battery_level, mLevel));
     }
 
     void updateShowPercent() {
