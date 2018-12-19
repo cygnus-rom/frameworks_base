@@ -23,6 +23,7 @@ import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -163,6 +164,8 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
         }
     };
 
+    private boolean mVolumePanelOnLeft;
+
     @Inject
     public VolumeDialogControllerImpl(
             Context context,
@@ -216,6 +219,7 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
                         VolumePolicy.A11Y_MODE_MEDIA_A11Y_VOLUME);
 
         mWakefulnessLifecycle.addObserver(mWakefullnessLifecycleObserver);
+        mWorker.post(() -> updateVolumePanelPositionW());
     }
 
     public AudioManager getAudioManager() {
@@ -363,6 +367,11 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
     @Override
     public void scheduleTouchFeedback() {
         mLastToggledRingerOn = System.currentTimeMillis();
+    }
+
+    @Override
+    public boolean isVolumePanelOnLeft() {
+        return mVolumePanelOnLeft;
     }
 
     private void playTouchFeedback() {
@@ -557,6 +566,17 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
 
     private static boolean isRinger(int stream) {
         return stream == AudioManager.STREAM_RING || stream == AudioManager.STREAM_NOTIFICATION;
+    }
+
+    private boolean updateVolumePanelPositionW() {
+        final boolean def = mContext.getResources().getBoolean(R.bool.config_audioPanelOnLeftSide);
+        final boolean volumePanelOnLeft = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.VOLUME_PANEL_ON_LEFT, def ? 1 : 0) == 1;
+        if (mVolumePanelOnLeft == volumePanelOnLeft) {
+            return false;
+        }
+        mVolumePanelOnLeft = volumePanelOnLeft;
+        return true;
     }
 
     private boolean updateEffectsSuppressorW(ComponentName effectsSuppressor) {
@@ -939,6 +959,13 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
                                 componentEnabled, fromTooltip));
             }
         }
+
+        @Override
+        public void onVolumePanelPositionChanged(boolean onLeft) {
+            for (final Map.Entry<Callbacks, Handler> entry : mCallbackMap.entrySet()) {
+                entry.getValue().post(() -> entry.getKey().onVolumePanelPositionChanged(onLeft));
+            }
+        }
     }
 
     private final class RingerModeObservers {
@@ -1020,17 +1047,21 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
                 Settings.Global.getUriFor(Settings.Global.ZEN_MODE);
         private final Uri ZEN_MODE_CONFIG_URI =
                 Settings.Global.getUriFor(Settings.Global.ZEN_MODE_CONFIG_ETAG);
+        private final Uri VOLUME_PANEL_ON_LEFT_URI =
+                Settings.System.getUriFor(Settings.System.VOLUME_PANEL_ON_LEFT);
 
-        public SettingObserver(Handler handler) {
+        SettingObserver(Handler handler) {
             super(handler);
         }
 
-        public void init() {
-            mContext.getContentResolver().registerContentObserver(ZEN_MODE_URI, false, this);
-            mContext.getContentResolver().registerContentObserver(ZEN_MODE_CONFIG_URI, false, this);
+        void init() {
+            final ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(ZEN_MODE_URI, false, this);
+            resolver.registerContentObserver(ZEN_MODE_CONFIG_URI, false, this);
+            resolver.registerContentObserver(VOLUME_PANEL_ON_LEFT_URI, false, this);
         }
 
-        public void destroy() {
+        void destroy() {
             mContext.getContentResolver().unregisterContentObserver(this);
         }
 
@@ -1042,6 +1073,11 @@ public class VolumeDialogControllerImpl implements VolumeDialogController, Dumpa
             }
             if (ZEN_MODE_CONFIG_URI.equals(uri)) {
                 changed |= updateZenConfig();
+            }
+            if (VOLUME_PANEL_ON_LEFT_URI.equals(uri)) {
+                if (updateVolumePanelPositionW()) {
+                    mCallbacks.onVolumePanelPositionChanged(mVolumePanelOnLeft);
+                }
             }
 
             if (changed) {
