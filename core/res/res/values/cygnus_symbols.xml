@@ -57,4 +57,7 @@
     <!-- Enable face auth only when swiping security view -->
     <java-symbol type="bool" name="config_faceAuthOnlyOnSecurityView" />
 
+    <!-- Whether to enable OnePlus Camera hack -->
+    <java-symbol type="bool" name="config_enableOnePlusCameraHack" />
+
 </resources>
