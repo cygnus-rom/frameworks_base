@@ -244,4 +244,9 @@
 
     <!-- Default for Settings.System.TIME_12_24 -->
     <string name="def_time_format" translatable="false">12</string>
+
+    <!-- microG UnifiedNlp default backends
+        format: packagename/componentname/signature|pkg/cmp/sig|.. -->
+    <string name="def_microg_location_backends"></string>
+    <string name="def_microg_geocoder_backends"></string>
 </resources>
