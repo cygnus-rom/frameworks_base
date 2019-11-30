@@ -156,7 +156,8 @@ public class BatteryMeterViewController extends ViewController<BatteryMeterView>
             return;
         }
 
-        mTunerService.addTunable(mTunable, StatusBarIconController.ICON_HIDE_LIST);
+        mTunerService.addTunable(mTunable, StatusBarIconController.ICON_HIDE_LIST,
+                BatteryMeterView.STATUS_BAR_BATTERY_STYLE);
         mIsSubscribedForTunerUpdates = true;
     }
 
