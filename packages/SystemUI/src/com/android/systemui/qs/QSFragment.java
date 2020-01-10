@@ -491,7 +491,7 @@ public class QSFragment extends LifecycleFragment implements QS, CommandQueue.Ca
     @Override
     public void onStateChanged(int newState) {
         mState = newState;
-        setKeyguardShowing(newState == StatusBarState.KEYGUARD);
+        setKeyguardShowing(newState == StatusBarState.KEYGUARD);}
     public QuickQSPanel getQuickQsPanel() {
         return mQuickQSPanel;
     }
