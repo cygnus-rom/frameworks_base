@@ -143,21 +143,11 @@ public class FODCircleView extends ImageView {
         Resources res = context.getResources();
         setScaleType(ScaleType.CENTER);
 
-        IFingerprintInscreen daemon = getFingerprintInScreenDaemon();
         if (daemon == null) {
             throw new RuntimeException("Unable to get IFingerprintInscreen");
         }
 
-        try {
-            mShouldBoostBrightness = daemon.shouldBoostBrightness();
-            mPositionX = daemon.getPositionX();
-            mPositionY = daemon.getPositionY();
-            mSize = daemon.getSize();
-        } catch (RemoteException e) {
-            throw new RuntimeException("Failed to retrieve FOD circle position or size");
-        }
 
-        Resources res = context.getResources();
 
         mColor = res.getColor(R.color.config_fodColor);
         mColorBackground = res.getColor(R.color.config_fodColorBackground);
