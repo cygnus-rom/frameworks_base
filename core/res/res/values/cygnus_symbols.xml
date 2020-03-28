@@ -34,4 +34,6 @@
     <!-- Location indicator -->
     <java-symbol type="drawable" name="stat_sys_location" />
 
+    <!-- Enable face auth only when swiping security view -->
+    <java-symbol type="bool" name="config_faceAuthOnlyOnSecurityView" />
 </resources>
