@@ -17,7 +17,6 @@
 package com.android.systemui.biometrics;
 
 import android.content.pm.PackageManager;
-import android.util.Slog;
 import android.view.View;
 
 import com.android.systemui.SystemUI;
@@ -27,22 +26,19 @@ import com.android.systemui.statusbar.CommandQueue.Callbacks;
 
 public class FODCircleViewImpl extends SystemUI implements CommandQueue.Callbacks {
     private static final String TAG = "FODCircleViewImpl";
-    private static final String FOD = "vendor.cygnus.biometrics.fingerprint.inscreen";
 
     private FODCircleView mFodCircleView;
 
     @Override
     public void start() {
-        PackageManager packageManager = mContext.getPackageManager();
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT) ||
-                !packageManager.hasSystemFeature(FOD)) {
+        if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
             return;
         }
         getComponent(CommandQueue.class).addCallback(this);
         try {
             mFodCircleView = new FODCircleView(mContext);
         } catch (RuntimeException e) {
-            Slog.e(TAG, "Failed to initialize FODCircleView", e);
+            // do nothing
         }
     }
 
