@@ -175,7 +175,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     private int mBurnInYOffset;
     private ActivityIntentHelper mActivityIntentHelper;
 
-    private static final String FOD = "vendor.pa.biometrics.fingerprint.inscreen";
+    private static final String FOD = "vendor.cygnus.biometrics.fingerprint.inscreen";
 
     public KeyguardBottomAreaView(Context context) {
         this(context, null);
