@@ -3878,9 +3878,7 @@
   <java-symbol type="string" name="user_authentication_failed" />
   <java-symbol type="string" name="service_not_subscribed" />
   <java-symbol type="string" name="multi_conn_to_same_pdn_not_allowed" />
-  <!-- Whether notify fingerprint client of successful cancelled authentication -->
-  <java-symbol type="bool" name="config_notifyClientOnFingerprintCancelSuccess" />
-<java-symbol type="bool" name="config_fingerprintPostResetRunnableForAllClients" />
+  <java-symbol type="bool" name="config_fingerprintPostResetRunnableForAllClients" />
     <!-- Extended Power Menu --> 
     <java-symbol type="array" name="config_extendedGlobalActionsList" />
     <java-symbol type="drawable" name="ic_restart_quick" />

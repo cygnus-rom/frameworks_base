@@ -4305,10 +4305,8 @@
     <string name="user_authentication_failed"></string>
     <string name="service_not_subscribed"></string>
     <string name="multi_conn_to_same_pdn_not_allowed"></string>
-    <!-- Whether notify fingerprint client of successful cancelled authentication -->
-    <bool name="config_notifyClientOnFingerprintCancelSuccess">false</bool>
-<bool name="config_fingerprintPostResetRunnableForAllClients">false</bool>
-<string-array translatable="false" name="config_extendedGlobalActionsList">
+    <bool name="config_fingerprintPostResetRunnableForAllClients">false</bool>
+    <string-array translatable="false" name="config_extendedGlobalActionsList">
         <item>quick_restart</item>
         <item>recovery</item>
         <item>bootloader</item>
