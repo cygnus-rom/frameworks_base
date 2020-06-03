@@ -26,6 +26,7 @@
 
     <!-- Volume panel -->
     <dimen name="volume_dialog_panel_transparent_padding_left">20dp</dimen>
+    <dimen name="volume_dialog_panel_land_margin">68dp</dimen>
 
     <!-- Tri-state UI -->
     <dimen name="tri_state_down_dialog_position">0px</dimen>
