@@ -17,9 +17,6 @@
 package com.android.systemui.biometrics;
 
 import android.content.pm.PackageManager;
-import android.hardware.display.ColorDisplayManager;
-import android.os.Handler;
-import android.os.SystemProperties;
 import android.util.Slog;
 import android.view.View;
 
@@ -33,9 +30,6 @@ public class FODCircleViewImpl extends SystemUI implements CommandQueue.Callback
     private static final String FOD = "vendor.cygnus.biometrics.fingerprint.inscreen";
 
     private FODCircleView mFodCircleView;
-    private boolean mDisableNightMode;
-    private boolean mNightMode;
-
 
     @Override
     public void start() {
@@ -50,15 +44,11 @@ public class FODCircleViewImpl extends SystemUI implements CommandQueue.Callback
         } catch (RuntimeException e) {
             Slog.e(TAG, "Failed to initialize FODCircleView", e);
         }
-        mDisableNightMode = SystemProperties.getBoolean("persist.fod.night_mode_disabled", false);
     }
 
     @Override
     public void showInDisplayFingerprintView() {
         if (mFodCircleView != null) {
-            if (mDisableNightMode) {
-                setNightMode(false);
-            }
             mFodCircleView.show();
         }
     }
@@ -66,16 +56,7 @@ public class FODCircleViewImpl extends SystemUI implements CommandQueue.Callback
     @Override
     public void hideInDisplayFingerprintView() {
         if (mFodCircleView != null) {
-            if (mDisableNightMode) {
-                setNightMode(mNightMode);
-            }
             mFodCircleView.hide();
         }
-    }
-
-    private void setNightMode(boolean state) {
-        ColorDisplayManager colorDisplayManager = mContext.getSystemService(ColorDisplayManager.class);
-        mNightMode = colorDisplayManager.isNightDisplayActivated();
-        colorDisplayManager.setNightDisplayActivated(state);
     }
 }
