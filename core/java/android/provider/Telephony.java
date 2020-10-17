@@ -282,13 +282,6 @@ public final class Telephony {
          * <p>Type: TEXT</p>
          */
         public static final String CREATOR = "creator";
-
-       /**
-         * The priority of the message.
-         * <P>Type: INTEGER</P>
-         * @hide
-         */
-        public static final String PRIORITY = "priority";
     }
 
     /**
@@ -385,7 +378,6 @@ public final class Telephony {
          * @hide
          */
         public static Cursor query(ContentResolver cr, String[] projection) {
-            android.util.SeempLog.record(10);
             return cr.query(CONTENT_URI, projection, null, null, DEFAULT_SORT_ORDER);
         }
 
@@ -396,7 +388,6 @@ public final class Telephony {
         @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.P, trackingBug = 115609023)
         public static Cursor query(ContentResolver cr, String[] projection,
                 String where, String orderBy) {
-            android.util.SeempLog.record(10);
             return cr.query(CONTENT_URI, projection, where,
                     null, orderBy == null ? DEFAULT_SORT_ORDER : orderBy);
         }
@@ -500,31 +491,6 @@ public final class Telephony {
         public static Uri addMessageToUri(int subId, ContentResolver resolver,
                 Uri uri, String address, String body, String subject,
                 Long date, boolean read, boolean deliveryReport, long threadId) {
-            return addMessageToUri(subId, resolver, uri, address, body, subject,
-                    date, read, deliveryReport, threadId, -1);
-        }
-
-        /**
-         * Add an SMS to the given URI with thread_id specified.
-         *
-         * @param resolver the content resolver to use
-         * @param uri the URI to add the message to
-         * @param address the address of the sender
-         * @param body the body of the message
-         * @param subject the psuedo-subject of the message
-         * @param date the timestamp for the message
-         * @param read true if the message has been read, false if not
-         * @param deliveryReport true if a delivery report was requested, false if not
-         * @param threadId the thread_id of the message
-         * @param subId the subscription which the message belongs to
-         * @param priority the priority of the message
-         * @return the URI for the new message
-         * @hide
-         */
-        public static Uri addMessageToUri(int subId, ContentResolver resolver,
-                Uri uri, String address, String body, String subject,
-                Long date, boolean read, boolean deliveryReport,
-                long threadId, int priority) {
             ContentValues values = new ContentValues(8);
             Rlog.v(TAG,"Telephony addMessageToUri sub id: " + subId);
 
@@ -536,7 +502,6 @@ public final class Telephony {
             values.put(READ, read ? Integer.valueOf(1) : Integer.valueOf(0));
             values.put(SUBJECT, subject);
             values.put(BODY, body);
-            values.put(PRIORITY, priority);
             if (deliveryReport) {
                 values.put(STATUS, STATUS_PENDING);
             }
@@ -2148,20 +2113,6 @@ public final class Telephony {
          * <P>Type: INTEGER (boolean)</P>
          */
         public static final String ARCHIVED = "archived";
-
-        /**
-         * Indicates the last mms type in the thread.
-         * <P>Type: TEXT</P>
-         * @hide
-         */
-        public static final String ATTACHMENT_INFO = "attachment_info";
-
-        /**
-         * Indicates whether this thread is a notification thread.
-         * <P>Type: INTEGER</P>
-         * @hide
-         */
-        public static final String NOTIFICATION = "notification";
     }
 
     /**
@@ -2962,7 +2913,6 @@ public final class Telephony {
          */
         public static Cursor query(
                 ContentResolver cr, String[] projection) {
-            android.util.SeempLog.record(10);
             return cr.query(CONTENT_URI, projection, null, null, DEFAULT_SORT_ORDER);
         }
 
@@ -2973,7 +2923,6 @@ public final class Telephony {
         public static Cursor query(
                 ContentResolver cr, String[] projection,
                 String where, String orderBy) {
-            android.util.SeempLog.record(10);
             return cr.query(CONTENT_URI, projection,
                     where, null, orderBy == null ? DEFAULT_SORT_ORDER : orderBy);
         }
@@ -3997,8 +3946,7 @@ public final class Telephony {
 
         /**
          * The APN set id. When the user manually selects an APN or the framework sets an APN as
-         * preferred, all APNs with the same set id as the selected APN should be prioritized over
-         * APNs in other sets.
+         * preferred, the device can only use APNs with the same set id as the selected APN.
          * <p>Type: INTEGER</p>
          * @hide
          */
@@ -4006,14 +3954,21 @@ public final class Telephony {
         public static final String APN_SET_ID = "apn_set_id";
 
         /**
-         * Possible value for the {@link #APN_SET_ID} field. By default APNs will not belong to a
-         * set. If the user manually selects an APN without apn set id, there is no need to
-         * prioritize any specific APN set ids.
+         * Possible value for the {@link #APN_SET_ID} field. By default APNs are added to set 0.
          * <p>Type: INTEGER</p>
          * @hide
          */
         @SystemApi
         public static final int NO_APN_SET_ID = 0;
+
+        /**
+         * Possible value for the {@link #APN_SET_ID} field.
+         * APNs with MATCH_ALL_APN_SET_ID will be used regardless of any set ids of
+         * the selected APN.
+         * <p>Type: INTEGER</p>
+         * @hide
+         */
+        public static final int MATCH_ALL_APN_SET_ID = -1;
 
         /**
          * A unique carrier id associated with this APN
