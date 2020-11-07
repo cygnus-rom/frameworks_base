@@ -2212,6 +2212,15 @@ public class StatusBarManagerService extends IStatusBarService.Stub implements D
                 mBar.showRearDisplayDialog(currentState);
             } catch (RemoteException e) {
                 Slog.e(TAG, "showRearDisplayDialog", e);
+}}}
+
+    @Override
+    public void startAssist(Bundle args) {
+        enforceStatusBarService();
+        if (mBar != null) {
+            try {
+                mBar.startAssist(args);
+            } catch (RemoteException ex) {
             }
         }
     }
