@@ -90,5 +90,6 @@ public class SystemSettings {
         Settings.System.LOCKSCREEN_BATTERY_INFO,
 	Settings.System.VOLUME_PANEL_ON_LEFT,
         Settings.System.STATUS_BAR_BATTERY_STYLE,
+        Settings.System.SHOW_BATTERY_PERCENT_INSIDE,
     };
 }
