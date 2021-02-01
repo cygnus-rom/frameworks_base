@@ -163,6 +163,7 @@ import static com.android.server.wm.ActivityTaskManagerDebugConfig.DEBUG_SWITCH;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.DEBUG_TRANSITION;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.DEBUG_USER_LEAVING;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.DEBUG_VISIBILITY;
+import static com.android.server.wm.ActivityTaskManagerDebugConfig.DEBUG_SERVICETRACKER;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.POSTFIX_ADD_REMOVE;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.POSTFIX_APP;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.POSTFIX_CONFIGURATION;
@@ -506,6 +507,7 @@ public final class ActivityRecord extends WindowToken implements WindowManagerSe
                                            // and reporting to the client that it is hidden.
     private boolean mSetToSleep; // have we told the activity to sleep?
     public boolean launching;      // is activity launch in progress?
+    public boolean translucentWindowLaunch; // a translucent window launch?
     boolean nowVisible;     // is this activity's window visible?
     boolean mDrawn;          // is this activity's window drawn?
     boolean mClientVisibilityDeferred;// was the visibility change message to client deferred?
@@ -1602,6 +1604,8 @@ public final class ActivityRecord extends WindowToken implements WindowManagerSe
         mClientVisible = true;
         idle = false;
         hasBeenLaunched = false;
+        launching = false;
+        translucentWindowLaunch = false;
         mStackSupervisor = supervisor;
 
         info.taskAffinity = getTaskAffinityWithUid(info.taskAffinity, info.applicationInfo.uid);
@@ -1792,9 +1796,11 @@ public final class ActivityRecord extends WindowToken implements WindowManagerSe
             ProtoLog.v(WM_DEBUG_STARTING_WINDOW, "Translucent=%s Floating=%s ShowWallpaper=%s",
                     windowIsTranslucent, windowIsFloating, windowShowWallpaper);
             if (windowIsTranslucent) {
+                translucentWindowLaunch = true;
                 return false;
             }
             if (windowIsFloating || windowDisableStarting) {
+                translucentWindowLaunch = true;
                 return false;
             }
             if (windowShowWallpaper) {
@@ -4507,8 +4513,9 @@ public final class ActivityRecord extends WindowToken implements WindowManagerSe
                 aState = ActivityStates.RESTARTING_PROCESS;
                 break;
         }
-
-        Slog.v(TAG, "Calling mServicetracker.OnActivityStateChange with flag " + early_notify + "state" + state);
+        if(DEBUG_SERVICETRACKER) {
+            Slog.v(TAG, "Calling mServicetracker.OnActivityStateChange with flag " + early_notify + " state " + state);
+        }
         try {
             mServicetracker = mAtmService.mStackSupervisor.getServicetrackerInstance();
             if (mServicetracker != null)
@@ -4671,15 +4678,6 @@ public final class ActivityRecord extends WindowToken implements WindowManagerSe
             return false;
         }
 
-        // Check if the activity is on a sleeping display, and if it can turn it ON.
-        if (getDisplay().isSleeping()) {
-            final boolean canTurnScreenOn = !mSetToSleep || canTurnScreenOn()
-                    || canShowWhenLocked() || containsDismissKeyguardWindow();
-            if (!canTurnScreenOn) {
-                return false;
-            }
-        }
-
         // Now check whether it's really visible depending on Keyguard state, and update
         // {@link ActivityStack} internal states.
         // Inform the method if this activity is the top activity of this stack, but exclude the
@@ -4689,6 +4687,12 @@ public final class ActivityRecord extends WindowToken implements WindowManagerSe
                 && stack.getDisplayArea().isTopNotPinnedStack(stack);
         final boolean visibleIgnoringDisplayStatus = stack.checkKeyguardVisibility(this,
                 visibleIgnoringKeyguard, isTop && isTopNotPinnedStack);
+
+        // Check if the activity is on a sleeping display, and if it can turn it ON.
+        // TODO(b/163993448): Do not make activity visible before display awake.
+        if (visibleIgnoringDisplayStatus && getDisplay().isSleeping()) {
+            return !mSetToSleep || canTurnScreenOn();
+        }
 
         return visibleIgnoringDisplayStatus;
     }
