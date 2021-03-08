@@ -2630,6 +2630,7 @@ public class NotificationPanelViewController extends PanelViewController {
         super.onClosingFinished();
         resetHorizontalPanelPosition();
         setClosingWithAlphaFadeout(false);
+        mMediaHierarchyManager.closeGuts();
     }
 
     private void setClosingWithAlphaFadeout(boolean closing) {
@@ -3021,7 +3022,7 @@ public class NotificationPanelViewController extends PanelViewController {
     private void updateShowEmptyShadeView() {
         boolean
                 showEmptyShadeView =
-                mBarState != StatusBarState.KEYGUARD && !mEntryManager.hasActiveNotifications();
+                mBarState != StatusBarState.KEYGUARD && !mEntryManager.hasVisibleNotifications();
         showEmptyShadeView(showEmptyShadeView);
     }
 

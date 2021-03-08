@@ -3745,7 +3745,7 @@ public class CarrierConfigManager {
     *
     * If true, then this subscription will be selected based on available coverage and will not be
     * available for a user in settings menus for selecting macro network providers. If unset,
-    * defaults to “false”.
+    * defaults to false.
     *
     * TODO: unhide this key.
     *
