@@ -194,8 +194,6 @@ class PackageSignatures {
                                                     + parser.getPositionDescription());
                                 }
                             } else {
-                                key = PlatformKeyMigration.mapCert(key);
-
                                 // Create the signature first to prevent adding null entries to the
                                 // output List if the key value is invalid.
                                 Signature sig = new Signature(key);
