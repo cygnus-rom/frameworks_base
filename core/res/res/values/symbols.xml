@@ -4520,4 +4520,7 @@
   <java-symbol type="array" name="config_roundedCornerBottomRadiusAdjustmentArray" />
   <java-symbol type="bool" name="config_secondaryBuiltInDisplayIsRound" />
   <java-symbol type="array" name="config_builtInDisplayIsRoundArray" />
+
+  <!-- Whether to cancel fingerprint operation if not idle -->
+  <java-symbol type="bool" name="config_fpCancelIfNotIdle" />
 </resources>

@@ -5334,4 +5334,7 @@
     </string>
 
     <integer name="config_chooser_max_targets_per_row">4</integer>
+
+    <!-- Whether to cancel fingerprint operation if not idle -->
+    <bool name="config_fpCancelIfNotIdle">false</bool>
 </resources>
