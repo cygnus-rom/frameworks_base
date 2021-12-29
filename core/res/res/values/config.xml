@@ -5101,4 +5101,7 @@
     <!-- Maximum time in millisecs for telephony should wait to deactivate data call
          when user turned off mobile data or data roaming during CIWLAN -->
     <integer name="config_maximumDelayTimeToDeactivateDataCall">7000</integer>
+
+    <!-- Whether to cancel fingerprint operation if not idle -->
+    <bool name="config_fpCancelIfNotIdle">false</bool>
 </resources>

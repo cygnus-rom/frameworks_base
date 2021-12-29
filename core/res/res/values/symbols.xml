@@ -4465,4 +4465,7 @@
   <java-symbol type="color" name="overview_background"/>
 
   <java-symbol type="integer" name="config_maximumDelayTimeToDeactivateDataCall" />
+
+    <!-- Whether to cancel fingerprint operation if not idle -->
+    <java-symbol type="bool" name="config_fpCancelIfNotIdle" />
 </resources>
