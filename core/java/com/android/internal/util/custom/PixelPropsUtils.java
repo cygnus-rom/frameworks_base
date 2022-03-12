@@ -137,6 +137,9 @@ public class PixelPropsUtils {
                 setPropValue(key, value);
             }
         }
+        if (packageName.equals("com.google.android.gms")){
+                setPropValue("MODEL", Build.MODEL + " ");
+            }
         // Set proper indexing fingerprint
         if (packageName.equals("com.google.android.settings.intelligence")) {
             setPropValue("FINGERPRINT", Build.VERSION.INCREMENTAL);
