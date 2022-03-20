@@ -2604,6 +2604,7 @@ public class KeyguardViewMediator extends SystemUI implements Dumpable,
             if (callback != null) {
                 if (mWakeAndUnlocking) {
                     mDrawnCallback = callback;
+                    notifyDrawn(callback);
                 } else {
                     notifyDrawn(callback);
                 }
