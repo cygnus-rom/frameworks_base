@@ -7440,5 +7440,6 @@ message MetricsEvent {
     // CATEGORY: SETTINGS
     // OS: Q
     SPACESHIP = 4480;
+    CYGNUS = 1999;
   }
 }
