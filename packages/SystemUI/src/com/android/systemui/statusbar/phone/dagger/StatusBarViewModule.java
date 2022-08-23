@@ -226,8 +226,8 @@ public abstract class StatusBarViewModule {
             TunerService tunerService,
             @Main Handler mainHandler,
             ContentResolver contentResolver,
-            FeatureFlags featureFlags,
-            BatteryController batteryController
+            BatteryController batteryController,
+            UserTracker userTracker
     ) {
         return new BatteryMeterViewController(
                 batteryMeterView,
@@ -236,8 +236,8 @@ public abstract class StatusBarViewModule {
                 tunerService,
                 mainHandler,
                 contentResolver,
-                featureFlags,
-                batteryController);
+                batteryController,
+                userTracker);
 
     }
 
