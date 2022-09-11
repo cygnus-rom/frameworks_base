@@ -39,6 +39,7 @@ import com.android.systemui.demomode.DemoModeController;
 import com.android.systemui.dump.DumpManager;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.StatusIconDisplayable;
+import com.android.systemui.statusbar.phone.PhoneStatusBarPolicy.BluetoothIconState;
 import com.android.systemui.statusbar.phone.StatusBarSignalPolicy.CallIndicatorIconState;
 import com.android.systemui.statusbar.phone.StatusBarSignalPolicy.MobileIconState;
 import com.android.systemui.statusbar.phone.StatusBarSignalPolicy.WifiIconState;
@@ -223,21 +224,21 @@ public class StatusBarIconControllerImpl implements Tunable,
         }
     }
 
-
     @Override
-    public void setNewWifiIcon() {
-        if (!mStatusBarPipelineFlags.useNewWifiIcon()) {
-            Log.d(TAG, "ignoring new pipeline callback because the new wifi icon is disabled");
+    public void setBluetoothIcon(String slot, BluetoothIconState state) {
+
+        if (state == null) {
+            removeIcon(slot, 0);
             return;
         }
 
-        String slot = mContext.getString(com.android.internal.R.string.status_bar_wifi);
-        StatusBarIconHolder holder = mStatusBarIconList.getIconHolder(slot, /* tag= */ 0);
+        StatusBarIconHolder holder = mStatusBarIconList.getIconHolder(slot, 0);
         if (holder == null) {
-            holder = StatusBarIconHolder.forNewWifiIcon();
+            holder = StatusBarIconHolder.fromBluetoothIconState(state);
             setIcon(slot, holder);
         } else {
-            // Don't have to do anything in the new world
+            holder.setBluetoothState(state);
+            handleSet(slot, holder);
         }
     }
 
