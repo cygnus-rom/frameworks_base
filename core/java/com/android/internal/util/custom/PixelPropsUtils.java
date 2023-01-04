@@ -190,6 +190,18 @@ public class PixelPropsUtils {
         }
     }
 
+    private static void setVersionField(String key, Object value) {
+        try {
+            if (DEBUG) Log.d(TAG, "Defining version field " + key + " to " + value.toString());
+            Field field = Build.VERSION.class.getDeclaredField(key);
+            field.setAccessible(true);
+            field.set(null, value);
+            field.setAccessible(false);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Log.e(TAG, "Failed to set version field " + key, e);
+        }
+    }
+
     private static boolean isCallerSafetyNet() {
         return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
                 .anyMatch(elem -> elem.getClassName().contains("DroidGuard"));
