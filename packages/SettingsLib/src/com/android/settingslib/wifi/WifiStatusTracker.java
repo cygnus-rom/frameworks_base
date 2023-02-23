@@ -36,6 +36,7 @@ import android.provider.Settings;
 
 import com.android.settingslib.R;
 import com.android.settingslib.Utils;
+import com.android.wifitrackerlib.WifiEntry;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -57,6 +58,7 @@ public class WifiStatusTracker {
     private final Handler mHandler;
     private final Handler mMainThreadHandler;
     private final Set<Integer> mNetworks = new HashSet<>();
+    private int mPrimaryNetworkId;
     // Save the previous HISTORY_SIZE states for logging.
     private final String[] mHistory = new String[HISTORY_SIZE];
     // Where to copy the next state into.
@@ -106,6 +108,7 @@ public class WifiStatusTracker {
             if (!mNetworks.contains(network.getNetId())) {
                 mNetworks.add(network.getNetId());
             }
+            mPrimaryNetworkId = network.getNetId();
             updateWifiInfo(wifiInfo);
             updateStatusLabel();
             mMainThreadHandler.post(() -> postResults());
@@ -121,10 +124,13 @@ public class WifiStatusTracker {
             recordLastWifiNetwork(log);
             if (mNetworks.contains(network.getNetId())) {
                 mNetworks.remove(network.getNetId());
-                updateWifiInfo(null);
-                updateStatusLabel();
-                mMainThreadHandler.post(() -> postResults());
             }
+            if (network.getNetId() != mPrimaryNetworkId) {
+                return;
+            }
+            updateWifiInfo(null);
+            updateStatusLabel();
+            mMainThreadHandler.post(() -> postResults());
         }
     };
     private final NetworkCallback mDefaultNetworkCallback =
@@ -360,6 +366,9 @@ public class WifiStatusTracker {
     private String getValidSsid(WifiInfo info) {
         String ssid = info.getSSID();
         if (ssid != null && !WifiManager.UNKNOWN_SSID.equals(ssid)) {
+            if (WifiEntry.isGbkSsidSupported()) {
+                return com.android.wifitrackerlib.Utils.getReadableText(ssid);
+            }
             return ssid;
         }
         return null;

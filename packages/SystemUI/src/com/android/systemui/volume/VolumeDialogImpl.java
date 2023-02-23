@@ -83,6 +83,7 @@ import android.provider.Settings;
 import android.provider.Settings.Global;
 import android.text.InputFilter;
 import android.text.TextUtils;
+import android.util.FeatureFlagUtils;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseBooleanArray;
@@ -259,6 +260,7 @@ public class VolumeDialogImpl implements VolumeDialog,
 
     private final ConfigurationController mConfigurationController;
     private final MediaOutputDialogFactory mMediaOutputDialogFactory;
+    private final VolumePanelFactory mVolumePanelFactory;
     private final ActivityStarter mActivityStarter;
 
     private boolean mShowing;
@@ -299,6 +301,7 @@ public class VolumeDialogImpl implements VolumeDialog,
             DeviceProvisionedController deviceProvisionedController,
             ConfigurationController configurationController,
             MediaOutputDialogFactory mediaOutputDialogFactory,
+            VolumePanelFactory volumePanelFactory,
             ActivityStarter activityStarter,
             InteractionJankMonitor interactionJankMonitor) {
         mContext =
@@ -310,6 +313,7 @@ public class VolumeDialogImpl implements VolumeDialog,
         mDeviceProvisionedController = deviceProvisionedController;
         mConfigurationController = configurationController;
         mMediaOutputDialogFactory = mediaOutputDialogFactory;
+        mVolumePanelFactory = volumePanelFactory;
         mActivityStarter = activityStarter;
         mShowActiveStreamOnly = showActiveStreamOnly();
         mHasSeenODICaptionsTooltip =
@@ -2009,6 +2013,7 @@ public class VolumeDialogImpl implements VolumeDialog,
         if (ss.level == row.requestedLevel) {
             row.requestedLevel = -1;
         }
+        final boolean isVoiceCallStream = row.stream == AudioManager.STREAM_VOICE_CALL;
         final boolean isA11yStream = row.stream == STREAM_ACCESSIBILITY;
         final boolean isRingStream = row.stream == AudioManager.STREAM_RING;
         final boolean isSystemStream = row.stream == AudioManager.STREAM_SYSTEM;
@@ -2053,8 +2058,12 @@ public class VolumeDialogImpl implements VolumeDialog,
         } else if (isRingSilent || zenMuted) {
             iconRes = row.iconMuteRes;
         } else if (ss.routedToBluetooth) {
-            iconRes = isStreamMuted(ss) ? R.drawable.ic_volume_media_bt_mute
-                                        : R.drawable.ic_volume_media_bt;
+            if (isVoiceCallStream) {
+                iconRes = R.drawable.ic_volume_bt_sco;
+            } else {
+                iconRes = isStreamMuted(ss) ? R.drawable.ic_volume_media_bt_mute
+                                            : R.drawable.ic_volume_media_bt;
+            }
         } else if (isStreamMuted(ss)) {
             iconRes = ss.muted ? R.drawable.ic_volume_media_off : row.iconMuteRes;
         } else {
