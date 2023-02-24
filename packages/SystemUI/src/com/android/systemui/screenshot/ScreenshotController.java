@@ -68,7 +68,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemProperties;
@@ -112,6 +111,9 @@ import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.flags.FeatureFlags;
 import com.android.systemui.screenshot.ScreenshotController.SavedImageData.ActionTransition;
 import com.android.systemui.screenshot.TakeScreenshotService.RequestCallback;
+import com.android.systemui.shared.system.ActivityManagerWrapper;
+import com.android.systemui.shared.system.TaskStackChangeListener;
+import com.android.systemui.shared.system.TaskStackChangeListeners;
 import com.android.systemui.util.Assert;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -409,6 +411,15 @@ public class ScreenshotController {
         mContext.registerReceiver(mCopyBroadcastReceiver, new IntentFilter(
                         ClipboardOverlayController.COPY_OVERLAY_ACTION),
                 ClipboardOverlayController.SELF_PERMISSION, null, Context.RECEIVER_NOT_EXPORTED);
+
+        // Grab PackageManager
+        mPm = mContext.getPackageManager();
+
+        // Register task stack listener
+        TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskListener);
+
+        // Initialize current foreground package name
+        mTaskListener.onTaskStackChanged();
     }
 
     @MainThread
@@ -493,6 +504,7 @@ public class ScreenshotController {
         removeWindow();
         releaseMediaPlayer();
         releaseContext();
+        TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskListener);
         mBgExecutor.shutdownNow();
     }
 
