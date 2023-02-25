@@ -32,9 +32,9 @@ import java.util.Map;
 public class PixelPropsUtils {
 
     private static final String TAG = PixelPropsUtils.class.getSimpleName();
+    private static final String DEVICE = "org.pixelexperience.device";
     private static final boolean DEBUG = false;
 
-    public static final String PACKAGE_NETFLIX = "com.netflix.mediaclient";
     private static final String SAMSUNG = "com.samsung.android.";
 
     private static final Map<String, Object> propsToChangePixel5;
@@ -45,20 +45,19 @@ public class PixelPropsUtils {
     private static final String[] packagesToChangePixel7Pro = {
             "com.google.android.apps.wallpaper",
             "com.google.android.apps.privacy.wildlife",
-            "com.google.android.apps.subscriptions.red",
-            "com.google.android.inputmethod.latin"
+            "com.google.android.apps.subscriptions.red"
     };
 
     private static final String[] packagesToChangePixelXL = {
-            "com.google.android.apps.photos"
+            "com.google.android.apps.photos",
+            "com.google.android.inputmethod.latin"
     };
 
     private static final String[] extraPackagesToChange = {
             "com.android.chrome",
             "com.android.vending",
             "com.breel.wallpapers20",
-            "com.nothing.smartcenter",
-            PACKAGE_NETFLIX
+            "com.nothing.smartcenter"
     };
 
     private static final String[] packagesToKeep = {
@@ -82,6 +81,19 @@ public class PixelPropsUtils {
             "com.google.android.apps.youtube.music",
             "com.google.android.apps.recorder",
             "com.google.android.apps.wearables.maestro.companion"
+    };
+
+    // Codenames for currently supported Pixels by Google
+    private static final String[] pixelCodenames = {
+            "cheetah",
+            "panther",
+            "bluejay",
+            "oriole",
+            "raven",
+            "barbet",
+            "redfin",
+            "bramble",
+            "sunfish"
     };
 
     private static volatile boolean sIsGms = false;
@@ -120,26 +132,20 @@ public class PixelPropsUtils {
         if (Arrays.asList(packagesToKeep).contains(packageName)) {
             return;
         }
-        if (packageName.equals(PACKAGE_NETFLIX) && !SystemProperties.getBoolean(
-                "persist.pixelpropsutils.spoof_netflix", false)) {
-            if (DEBUG) Log.d(TAG, "Netflix spoofing disabled by system prop");
-            return;
-        }
         if (packageName.startsWith("com.google.")
                 || packageName.startsWith(SAMSUNG)
                 || Arrays.asList(extraPackagesToChange).contains(packageName)) {
 
             Map<String, Object> propsToChange = new HashMap<>();
+            boolean isPixelDevice = Arrays.asList(pixelCodenames).contains(SystemProperties.get(DEVICE));
 
             if (packageName.equals("com.google.android.apps.photos")) {
                 propsToChange.putAll(propsToChangePixelXL);
             } else if (packageName.equals("com.android.vending")) {
                 sIsFinsky = true;
                 return;
-            } else {
-                if ((Arrays.asList(packagesToChangePixel7Pro).contains(packageName))
-                        || packageName.startsWith(SAMSUNG)
-                        || Arrays.asList(extraPackagesToChange).contains(packageName)) {
+            } else if (!isPixelDevice) {
+                if ((Arrays.asList(packagesToChangePixel7Pro).contains(packageName))) {
                     propsToChange.putAll(propsToChangePixel7Pro);
                 } else if (Arrays.asList(packagesToChangePixelXL).contains(packageName)) {
                     propsToChange.putAll(propsToChangePixelXL);
