@@ -35,22 +35,31 @@ public class PixelPropsUtils {
     private static final String DEVICE = "org.pixelexperience.device";
     private static final boolean DEBUG = false;
 
-    private static final String SAMSUNG = "com.samsung.android.";
+    private static final String SAMSUNG = "com.samsung.";
 
+    private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangePixel5;
     private static final Map<String, Object> propsToChangePixel7Pro;
     private static final Map<String, Object> propsToChangePixelXL;
     private static final Map<String, ArrayList<String>> propsToKeep;
 
     private static final String[] packagesToChangePixel7Pro = {
+            "com.google.android.inputmethod.latin",
+            "com.google.android.setupwizard",
+            "com.google.android.apps.turbo",
+            "com.google.android.googlequicksearchbox",
             "com.google.android.apps.wallpaper",
+            "com.google.android.apps.wallpaper.pixel",
             "com.google.android.apps.privacy.wildlife",
-            "com.google.android.apps.subscriptions.red"
+            "com.google.android.apps.googleassistant",
+            "com.google.android.apps.nbu.files",
+            "com.google.android.apps.podcasts",
+            "com.google.android.contacts",
+            "com.google.android.deskclock"
     };
 
     private static final String[] packagesToChangePixelXL = {
-            "com.google.android.apps.photos",
-            "com.google.android.inputmethod.latin"
+            "com.google.android.apps.photos"
     };
 
     private static final String[] extraPackagesToChange = {
@@ -60,19 +69,13 @@ public class PixelPropsUtils {
             "com.nothing.smartcenter"
     };
 
-    private static final String[] packagesToKeep = {
-            "com.google.android.GoogleCamera",
-            "com.google.android.GoogleCamera.Cameight",
-            "com.google.android.GoogleCamera.Go",
-            "com.google.android.GoogleCamera.Urnyx",
-            "com.google.android.GoogleCameraAsp",
-            "com.google.android.GoogleCameraCVM",
-            "com.google.android.GoogleCameraEng",
-            "com.google.android.GoogleCameraEng2",
-            "com.google.android.GoogleCameraGood",
+    private static final String[] customGoogleCameraPackages = {
             "com.google.android.MTCL83",
             "com.google.android.UltraCVM",
-            "com.google.android.apps.cameralite",
+            "com.google.android.apps.cameralite"
+    };
+
+    private static final String[] packagesToKeep = {
             "com.google.android.dialer",
             "com.google.android.euicc",
             "com.google.ar.core",
@@ -102,6 +105,9 @@ public class PixelPropsUtils {
     static {
         propsToKeep = new HashMap<>();
         propsToKeep.put("com.google.android.settings.intelligence", new ArrayList<>(Collections.singletonList("FINGERPRINT")));
+        propsToChangeGeneric = new HashMap<>();
+        propsToChangeGeneric.put("TYPE", "user");
+        propsToChangeGeneric.put("TAGS", "release-keys");
         propsToChangePixel7Pro = new HashMap<>();
         propsToChangePixel7Pro.put("BRAND", "google");
         propsToChangePixel7Pro.put("MANUFACTURER", "Google");
@@ -125,11 +131,21 @@ public class PixelPropsUtils {
         propsToChangePixelXL.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
     }
 
+    private static boolean isGoogleCameraPackage(String packageName){
+        return packageName.startsWith("com.google.android.GoogleCamera") ||
+            Arrays.asList(customGoogleCameraPackages).contains(packageName);
+    }
+
     public static void setProps(String packageName) {
+        propsToChangeGeneric.forEach((k, v) -> setPropValue(k, v));
+
         if (packageName == null || packageName.isEmpty()) {
             return;
         }
         if (Arrays.asList(packagesToKeep).contains(packageName)) {
+            return;
+        }
+        if (isGoogleCameraPackage(packageName)) {
             return;
         }
         if (packageName.startsWith("com.google.")
@@ -137,6 +153,7 @@ public class PixelPropsUtils {
                 || Arrays.asList(extraPackagesToChange).contains(packageName)) {
 
             Map<String, Object> propsToChange = new HashMap<>();
+
             boolean isPixelDevice = Arrays.asList(pixelCodenames).contains(SystemProperties.get(DEVICE));
 
             if (packageName.equals("com.google.android.apps.photos")) {
@@ -174,6 +191,8 @@ public class PixelPropsUtils {
                     setPropValue("DEVICE", "marlin");
                     setPropValue("MODEL", "Pixel XL");
                     setVersionField("DEVICE_INITIAL_SDK_INT", Build.VERSION_CODES.N_MR1);
+                }else{
+                    propsToChangePixel7Pro.forEach((k, v) -> setPropValue(k, v));
                 }
                 return;
             }
